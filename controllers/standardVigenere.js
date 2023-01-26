@@ -10,7 +10,7 @@ module.exports = {
             });
         }
 
-        plaintext = plaintext.replace(/[^\x00-\x7F]/g, '');
+        plaintext = plaintext.replace(/[^a-zA-Z]/g, '');
         key = key.toLowerCase();
         plaintext = plaintext.toLowerCase();
 
@@ -39,7 +39,7 @@ module.exports = {
             });
         }
 
-        ciphertext = ciphertext.replace(/[^\x00-\x7F]/g, '');
+        ciphertext = ciphertext.replace(/[^a-zA-Z]/g, '');
         key = key.toLowerCase();
         ciphertext = ciphertext.toLowerCase();
 

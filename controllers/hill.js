@@ -12,7 +12,7 @@ module.exports = {
             });
         }
 
-        plaintext = plaintext.replace(/[^\x00-\x7F]/g, '');
+        plaintext = plaintext.replace(/[^a-zA-Z]/g, '');
         plaintext = plaintext.toLowerCase();
 
         let ciphertext = '';
@@ -60,7 +60,7 @@ module.exports = {
             });
         }
 
-        ciphertext = ciphertext.replace(/[^\x00-\x7F]/g, '');
+        ciphertext = ciphertext.replace(/[^a-zA-Z]/g, '');
         ciphertext = ciphertext.toLowerCase();
 
         let plaintext = '';
