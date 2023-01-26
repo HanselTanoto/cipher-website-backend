@@ -10,6 +10,12 @@ module.exports = {
                 'err': 'Missing key'
             });
         }
+        // key must be a string of letters or spaces
+        if (key.match(/[^\sA-Za-z]/)) {
+            return res.status(400).send({
+                'err': 'Key must contain only alphabetic characters or spaces'
+            });
+        }
 
         key = key.replace(/[^a-zA-Z]/g, '');
         plaintext = plaintext.replace(/[^a-zA-Z]/g, '');
