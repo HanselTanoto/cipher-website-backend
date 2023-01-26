@@ -5,11 +5,11 @@ module.exports = {
     },
 
     invMod(a,b){
-        if(this.gcd(a,b) != 1)return -1
         for(let i=1;i<b;i++){
             if((a*i) % b == 1){
                 return i
             }
         }
+        return -1
     }
 }
