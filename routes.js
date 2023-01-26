@@ -15,4 +15,5 @@ module.exports = (app) => {
     })
 
     app.post('/autokeyvigenere/encrypt',upload.single('file'),ParsingInput.parseInput, AutoKeyVigenere.encrypt)
+    app.post('/autokeyvigenere/decrypt',upload.single('file'),ParsingInput.parseInput, AutoKeyVigenere.decrypt)
 }
