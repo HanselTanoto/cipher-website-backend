@@ -9,6 +9,7 @@ module.exports = {
         }else if(req.file){
             req.plainText = req.file.buffer.toString()
             req.isFileUsed = true
+            req.fileName = req.file.originalname
             console.log(req.plainText)
             next()
         }else{
