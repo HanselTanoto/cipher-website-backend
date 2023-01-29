@@ -105,7 +105,8 @@ module.exports = {
         }
 
         return res.status(200).send({
-            'cipher': ciphertext
+            'cipher': ciphertext,
+            'keyMatrix': keyMatrix
         });
     },
 
@@ -197,7 +198,8 @@ module.exports = {
         }
 
         return res.status(200).send({
-            'plaintext': plaintext
+            'plaintext': plaintext,
+            'keyMatrix': keyMatrix
         });
     }
 }
