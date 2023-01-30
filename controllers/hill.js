@@ -3,6 +3,7 @@ const MathLib = require('../utils/modulo')
 const MatrixLib = require('../utils/matrix')
 const { det } = require('../utils/matrix')
 const { invMod } = require('../utils/modulo')
+const  Matrix = require('node-matrices');
 
 // Hill cipher with 3x3 matrix key
 module.exports = {
@@ -10,37 +11,43 @@ module.exports = {
         let text = req.text.replace(/[^a-z]/g,'')
         let mdm = 26
         let listMat = req.body.matUpload.split(' ')
-        if(listMat.length != 9){
+        let matSize = parseInt(req.body.matSize)
+        if(!matSize){
+            return res.status(400).send({
+                'err':'Matrix size must be specified and greater than 0'
+            })
+        }
+        if(listMat.length != matSize * matSize){
             return res.status(400).send({
                 'err' : 'Matrix key element cannot be empty'
             })
         }
         let mat = []
-        for(let i=0;i<3;i++){
+        for(let i=0;i<matSize;i++){
             mat.push([])
-            for(let j=0;j<3;j++){
-                let isNum = /^\d+$/.test(listMat[i*3+j]);
+            for(let j=0;j<matSize;j++){
+                let isNum = /^\d+$/.test(listMat[i*matSize+j]);
                 if(!isNum){
                     return res.status(400).send({
                         'err': 'Matrix key can only contain number'
                     })
                 }
-                mat[i].push(parseInt(listMat[i*3+j]))
+                mat[i].push(parseInt(listMat[i*matSize+j]))
             }
         }
         let cipher = ''
-        for(let i=0;i<text.length;i+=3){
-            arr = []
-            for(let j=0;j<3;j++){
+        for(let i=0;i<text.length;i+=matSize){
+            let arr = []
+            for(let j=0;j<matSize;j++){
                 if(i+j>=text.length){
                     arr.push(25)
                 }else{
                     arr.push(CharLib.toNum(text[i+j]))
                 }
             }
-            for(let j=0;j<3;j++){
+            for(let j=0;j<matSize;j++){
                 let num = 0
-                for(let k=0;k<3;k++){
+                for(let k=0;k<matSize;k++){
                     num += mat[j][k] * arr[k]
                 }
                 num %= mdm
@@ -58,130 +65,116 @@ module.exports = {
         let text = req.text.replace(/[^a-z]/g,'')
         let mdm = 26
         let listMat = req.body.matUpload.split(' ')
-        if(listMat.length != 9){
+        let matSize = parseInt(req.body.matSize)
+        if(!matSize){
+            return res.status(400).send({
+                'err':'Matrix size must be specified and greater than 0'
+            }) 
+        }
+        if(listMat.length != matSize * matSize){
             return res.status(400).send({
                 'err' : 'Matrix key element cannot be empty'
             })
         }
         let mat = []
-        for(let i=0;i<3;i++){
+        for(let i=0;i<matSize;i++){
             mat.push([])
-            for(let j=0;j<3;j++){
-                let isNum = /^\d+$/.test(listMat[i*3+j]);
+            for(let j=0;j<matSize;j++){
+                let isNum = /^\d+$/.test(listMat[i*matSize+j]);
                 if(!isNum){
                     return res.status(400).send({
                         'err': 'Matrix key can only contain number'
                     })
                 }
-                mat[i].push(parseInt(listMat[i*3+j]))
+                mat[i].push(parseInt(listMat[i*matSize+j]))
             }
         }
-        let detmat = MatrixLib.det(mat)
-        if(detmat == 0){
+        let matrix = new Matrix(mat)
+        let adj = matrix.adjugate()
+        let det = matrix.determinant();
+        det %= mdm
+        det = (det + mdm) % 26
+        
+        if(MathLib.gcd(det,mdm) != 1){
             return res.status(400).send({
-                'err' : 'Matrix is not invertible'
+                'err': 'Matrix determinant error modulo inverse'
             })
         }
-        detmat %= mdm
-        detmat += mdm
-        detmat %= mdm
-        let inv = MathLib.invMod(detmat,mdm)
-        if(inv == -1){
-            return res.status(400).send({
-                'err' : 'Matrix is not valid'
-            })
-        }
-        let invmat = MatrixLib.invmat(mat)
 
+        let invdet = MathLib.invMod(det,mdm)
+        adj = adj.scale(invdet)
+
+        
         let plaintext = ''
 
-        for(let i=0;i<text.length - (text.length % 3);i+=3){
-            arr = []
-            for(let j=0;j<3;j++){
-                if(i+j>=text.length){
-                    arr.push(26)
-                }else{
-                    arr.push(CharLib.toNum(text[i+j]))
-                }
+        for(let i=0;i<text.length-(text.length % matSize);i+=matSize){
+            let arr = [];
+            for(let j=0;j<matSize;j++){
+                arr.push([CharLib.toNum(text[i+j])])
             }
-            for(let j=0;j<3;j++){
-                let num = 0
-                for(let k=0;k<3;k++){
-                    num += invmat[j][k] * arr[k]
-                }
-                num *= inv
-                num %= mdm
-                num += mdm
-                num %= mdm
-                if(i+j<text.length){
-                    plaintext += CharLib.toChr(num)
-                }
-            }
-        }
-        if(text.length % 3 == 2){
-            let mat2 = []
-            for(let i=0;i<2;i++){
-                mat2.push([])
-                for(let j=0;j<2;j++){
-                    mat2[i].push(mat[i][j])
-                }
-            }
-            arr = [0,0]
-            arr[0] = CharLib.toNum(text[text.length - 2])
-            arr[0] -= 25 * mat[0][2]
-            arr[0] %= mdm
-            arr[0] += mdm
-            arr[0] %= mdm
-            arr[1] = CharLib.toNum(text[text.length - 1])
-            arr[1] -= 25 * mat[1][2]
-            arr[1] %= mdm
-            arr[1] += mdm
-            arr[1] %= mdm
-
-            let detmat2 = MatrixLib.det2(mat2)
-            let invmat2 = MatrixLib.invmat2(mat2)
-            detmat2 %= mdm
-            detmat2 += mdm
-            detmat2 %= mdm
-            console.log(detmat2)
-            if(detmat2 == 0){
-                return res.status(400).send({
-                    'err' : 'Matrix 2x2 is not invertible'
-                })
-            }
-            let inv2 = MathLib.invMod(detmat2,mdm)
-            if(inv2 == -1){
-                return res.status(400).send({
-                    'err' : 'Matrix 2x2 is not valid'
-                })
-            }
-            console.log(invmat2)
-            for(let i=0;i<2;i++){
-                let num = 0
-                for(let j=0;j<2;j++){
-                    num += invmat2[i][j] * arr[j]
-                }
-                num *= inv2
-                num %= mdm
-                num += mdm
-                num %= mdm
+            let arrmat = new Matrix(arr)
+            let ret = adj.multiply(arrmat)
+            for(let j=0;j<matSize;j++){
+                let num = ret.get(j,0)
+                num = ((num%mdm)+mdm)%mdm
                 plaintext += CharLib.toChr(num)
             }
-        }else if(text.length % 3 == 1){
-            let k = CharLib.toNum(text[text.length - 1])
-            k -= 25 * (mat[0][1] + mat[0][2])
-            k %= mdm
-            k += mdm
-            k %= mdm
-            if(invMod(mat[0][0],mdm) == -1){
-                return res.status(400).send({
-                    'err' : 'Matrix 1x1 is not valid'
+        }
+
+        if(text.length % matSize != 0){
+            let arr = []
+            let st = text.length - (text.length % matSize)
+            for(let i=0;i<text.length%matSize;i++){
+                arr.push([CharLib.toNum(text[st + i])])
+                for(let j=text.length%matSize;j<matSize;j++){
+                    arr[i][0] -= 25 * mat[i][j]
+                }
+                arr[i][0] = ((arr[i][0]%mdm)+mdm)%mdm
+            }
+            let matsmall = []
+            for(let i=0;i<text.length%matSize;i++){
+                matsmall.push([])
+                for(let j=0;j<text.length%matSize;j++){
+                    matsmall[i].push(mat[i][j])
+                }
+            }
+            if(text.length % matSize == 1){
+                if(MathLib.gcd(mat[0][0],arr[0][0]) != 1){
+                    return res.status(400).send({
+                        'err': 'Matrix small determinant error modulo inverse'
+                    })
+                }
+                let num = MathLib.invMod(mat[0][0],26) * arr[0][0]
+                num = ((num%mdm)+mdm)%mdm
+                plaintext += CharLib.toChr(num)
+                return res.status(200).send({
+                    'plaintext' : plaintext
                 })
             }
-            let num = k * invMod(mat[0][0],mdm)
-            num %= mdm
-            plaintext += CharLib.toChr(num)
+
+            let matrixsmall = new Matrix(matsmall)
+            let adjsmall = matrixsmall.adjugate()
+            let det = matrixsmall.determinant()
+            det = ((det%mdm)+mdm)%mdm
+
+            if(MathLib.gcd(det,mdm) != 1){
+                return res.status(400).send({
+                    'err': 'Matrix small determinant error modulo inverse'
+                })
+            }
+
+
+            let invdet = MathLib.invMod(det,mdm)
+            adjsmall.scale(invdet)
+            let ret = adjsmall.multiply(new Matrix(arr))
+
+            for(let i=0;i<text.length%matSize;i++){
+                let num = ret.get(i,0)
+                num = ((num%mdm)+mdm)%mdm
+                plaintext += CharLib.toChr(num)
+            }
         }
+
         return res.status(200).send({
             'plaintext' : plaintext
         })
