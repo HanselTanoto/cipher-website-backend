@@ -3,19 +3,8 @@
 module.exports = {
     encrypt: (req, res) => {
         let key = req.body.key;
+        let keyTable = req.body.keyTable;
         let plaintext = req.text;
-        
-        if (!key) {
-            return res.status(400).send({
-                'err': 'Missing key'
-            });
-        }
-        // key must be a string of letters or spaces
-        if (key.match(/[^\sA-Za-z]/)) {
-            return res.status(400).send({
-                'err': 'Key must contain only alphabetic characters or spaces'
-            });
-        }
 
         key = key.replace(/[^a-zA-Z]/g, '');
         plaintext = plaintext.replace(/[^a-zA-Z]/g, '');
@@ -24,30 +13,11 @@ module.exports = {
 
         let ciphertext = '';
 
-        let keyArray = [];
-        for (let i = 0; i < key.length; i++) {
-            let char = key.charAt(i);
-            if (char == 'j') {
-                continue;
-            }
-            if (keyArray.indexOf(char) == -1) {
-                keyArray.push(char);
-            }
-        }
-
-        let alphabet = 'abcdefghiklmnopqrstuvwxyz';
-        for (let i = 0; i < alphabet.length; i++) {
-            let char = alphabet.charAt(i);
-            if (keyArray.indexOf(char) == -1) {
-                keyArray.push(char);
-            }
-        }
-
         let keyMatrix = [];
         for (let i = 0; i < 5; i++) {
             keyMatrix.push([]);
             for (let j = 0; j < 5; j++) {
-                keyMatrix[i].push(keyArray[i * 5 + j]);
+                keyMatrix[i].push(keyTable[i * 5 + j]);
             }
         }
 
@@ -106,25 +76,14 @@ module.exports = {
 
         return res.status(200).send({
             'cipher': ciphertext,
-            'keyMatrix': keyMatrix
         });
     },
 
+    
     decrypt: (req, res) => {
         let key = req.body.key;
+        let keyTable = req.body.keyTable;
         let ciphertext = req.text;
-        
-        if (!key) {
-            return res.status(400).send({
-                'err': 'Missing key'
-            });
-        }
-
-        if (ciphertext.length % 2 != 0) {
-            return res.status(400).send({
-                'err': 'Ciphertext length must be even'
-            });
-        }
 
         key = key.replace(/[^a-zA-Z]/g, '');
         ciphertext = ciphertext.replace(/[^a-zA-Z]/g, '');
@@ -133,30 +92,11 @@ module.exports = {
 
         let plaintext = '';
 
-        let keyArray = [];
-        for (let i = 0; i < key.length; i++) {
-            let char = key.charAt(i);
-            if (char == 'j') {
-                continue;
-            }
-            if (keyArray.indexOf(char) == -1) {
-                keyArray.push(char);
-            }
-        }
-
-        let alphabet = 'abcdefghiklmnopqrstuvwxyz';
-        for (let i = 0; i < alphabet.length; i++) {
-            let char = alphabet.charAt(i);
-            if (keyArray.indexOf(char) == -1) {
-                keyArray.push(char);
-            }
-        }
-
         let keyMatrix = [];
         for (let i = 0; i < 5; i++) {
             keyMatrix.push([]);
             for (let j = 0; j < 5; j++) {
-                keyMatrix[i].push(keyArray[i * 5 + j]);
+                keyMatrix[i].push(keyTable[i * 5 + j]);
             }
         }
 
@@ -199,7 +139,6 @@ module.exports = {
 
         return res.status(200).send({
             'plaintext': plaintext,
-            'keyMatrix': keyMatrix
         });
     }
 }
