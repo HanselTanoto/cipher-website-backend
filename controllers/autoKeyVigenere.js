@@ -11,7 +11,9 @@ module.exports = {
             })
         }
         
-        let key = req.body.key.replace(/[^a-zA-Z]/g,'')
+        req.body.key = req.body.key.replace(/[^a-zA-Z]/g,'')
+        let key = req.body.key
+        
         req.text = req.text.toLowerCase()
         key = key.toLowerCase()
 
@@ -24,6 +26,8 @@ module.exports = {
             idx %= 26
             cipher += CharLib.toChr(idx)
         }
+        console.log(cipher)
+        console.log(key)
         return res.status(200).send({
             'cipher' : cipher
         })

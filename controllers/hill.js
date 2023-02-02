@@ -61,7 +61,8 @@ module.exports = {
         })
     },
     decrypt(req,res){
-        let text = req.text.replace(/[^a-z]/g,'')
+        let text = req.text.replace(/[^a-z^A-Z]/g,'')
+        text = text.toLowerCase()
         let mdm = 26
         let listMat = req.body.matUpload.split(' ')
         let matSize = parseInt(req.body.matSize)
@@ -119,6 +120,7 @@ module.exports = {
                 plaintext += CharLib.toChr(num)
             }
         }
+        console.log(plaintext)
         if(text.length % matSize != 0){
             let arr = []
             let st = text.length - (text.length % matSize)
@@ -138,8 +140,8 @@ module.exports = {
             }
             if(text.length % matSize == 1){
                 if(MathLib.gcd(mat[0][0],arr[0][0]) != 1){
-                    return res.status(400).send({
-                        'err': `Matrix 1x1 determinant(${mat[0][0]}) is not relatively prime with modulo`
+                    return res.status(201).send({
+                        'plaintext' : plaintext
                     })
                 }
                 let num = MathLib.invMod(mat[0][0],26) * arr[0][0]
@@ -156,8 +158,8 @@ module.exports = {
             det = ((det%mdm)+mdm)%mdm
 
             if(MathLib.gcd(det,mdm) != 1){
-                return res.status(400).send({
-                    'err': `Matrix ${text.length % matSize}x${text.length % matSize} determinant(${det}) is not relatively prime with modulo`
+                return res.status(202).send({
+                    'plaintext' : plaintext
                 })
             }
 
