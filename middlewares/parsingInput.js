@@ -7,7 +7,9 @@ module.exports = {
             console.log(req.text)
             next()
         }else if(req.file){
-            req.text = req.file.buffer.toString()
+            console.log(req.file.buffer)
+            req.text = req.file.buffer.toString('utf-8')
+            req.buf = req.file.buffer.toJSON().data
             req.isFileUsed = true
             req.fileName = req.file.originalname
             console.log(req.text)
