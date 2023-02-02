@@ -1,14 +1,13 @@
 const CharLib = require('../utils/char')
 const MathLib = require('../utils/modulo')
-const MatrixLib = require('../utils/matrix')
-const { det } = require('../utils/matrix')
 const { invMod } = require('../utils/modulo')
 const  Matrix = require('node-matrices');
 
-// Hill cipher with 3x3 matrix key
+// Hill cipher with nxn matrix key
 module.exports = {
     encrypt(req,res){
-        let text = req.text.replace(/[^a-z]/g,'')
+        let text = req.text.replace(/[^a-zA-Z]/g,'')
+        text = text.toLowerCase()
         let mdm = 26
         let listMat = req.body.matUpload.split(' ')
         let matSize = parseInt(req.body.matSize)
@@ -97,7 +96,7 @@ module.exports = {
         
         if(MathLib.gcd(det,mdm) != 1){
             return res.status(400).send({
-                'err': 'Matrix determinant error modulo inverse'
+                'err': `Matrix determinant(${det}) is not relatively prime with modulo`
             })
         }
 
@@ -120,7 +119,6 @@ module.exports = {
                 plaintext += CharLib.toChr(num)
             }
         }
-
         if(text.length % matSize != 0){
             let arr = []
             let st = text.length - (text.length % matSize)
@@ -141,7 +139,7 @@ module.exports = {
             if(text.length % matSize == 1){
                 if(MathLib.gcd(mat[0][0],arr[0][0]) != 1){
                     return res.status(400).send({
-                        'err': 'Matrix small determinant error modulo inverse'
+                        'err': `Matrix 1x1 determinant(${mat[0][0]}) is not relatively prime with modulo`
                     })
                 }
                 let num = MathLib.invMod(mat[0][0],26) * arr[0][0]
@@ -159,18 +157,19 @@ module.exports = {
 
             if(MathLib.gcd(det,mdm) != 1){
                 return res.status(400).send({
-                    'err': 'Matrix small determinant error modulo inverse'
+                    'err': `Matrix ${text.length % matSize}x${text.length % matSize} determinant(${det}) is not relatively prime with modulo`
                 })
             }
 
 
             let invdet = MathLib.invMod(det,mdm)
-            adjsmall.scale(invdet)
+            adjsmall = adjsmall.scale(invdet)
             let ret = adjsmall.multiply(new Matrix(arr))
 
             for(let i=0;i<text.length%matSize;i++){
                 let num = ret.get(i,0)
                 num = ((num%mdm)+mdm)%mdm
+                console.log(num)
                 plaintext += CharLib.toChr(num)
             }
         }
