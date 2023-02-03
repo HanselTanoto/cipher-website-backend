@@ -7,6 +7,7 @@ const AutoKeyVigenere = require('./controllers/autoKeyVigenere')
 const Affine = require('./controllers/affine')
 const Playfair = require('./controllers/playfair')
 const Hill = require('./controllers/hill')
+const Enigma = require('./controllers/enigma')
 
 module.exports = (app) => {
 
@@ -30,4 +31,7 @@ module.exports = (app) => {
 
     app.post('/hill/encrypt',upload.single('file'),ParsingInput.parseInput, Hill.encrypt)
     app.post('/hill/decrypt',upload.single('file'),ParsingInput.parseInput, Hill.decrypt)
+
+    app.post('/enigma/encrypt',upload.single('file'),ParsingInput.parseInput, Enigma.encrypt)
+    app.post('/enigma/decrypt',upload.single('file'),ParsingInput.parseInput, Enigma.decrypt)
 }

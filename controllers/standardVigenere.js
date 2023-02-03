@@ -46,6 +46,7 @@ module.exports = {
         }
 
         ciphertext = ciphertext.replace(/[^a-zA-Z]/g, '');
+        key = key.replace(/[^a-zA-Z]/g, '');
         key = key.toLowerCase();
         ciphertext = ciphertext.toLowerCase();
 
