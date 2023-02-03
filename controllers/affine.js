@@ -7,7 +7,7 @@ module.exports = {
         let keym = req.body.keym
         let keyn = 128
         let keyb = req.body.keyb
-        req.text = req.text.replace(/[^a-zA-Z]/g, '')
+        req.text = req.text.replace(/[^\x00-\x7F]/g, '')
 
         if(!keym || !keyb){
             return res.status(400).send({
