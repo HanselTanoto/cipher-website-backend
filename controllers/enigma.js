@@ -3,8 +3,8 @@ const { decrypt } = require('./hill');
 
 module.exports = {
     encrypt(req,res){
-        let key = req.body.key.replace(/[^a-zA-Z]/g, '');
-        let text = req.text.replace(/[^a-zA-Z]/g, '');
+        let key = req.body.key.replace(/[^a-zA-Z]/g, '').toLowerCase();
+        let text = req.text.replace(/[^a-zA-Z]/g, '').toLowerCase();
 
         if(key.length != 3){
             return res.status(400).send({
@@ -26,7 +26,7 @@ module.exports = {
             num2 %= 26
             let num3 = num2 + offset[2]
             num3 %= 26
-            console.log(num3)
+            console.log(offset,num3)
             cipher += CharLib.toChr(num3)
             console.log(i,num1,num2,num3)
             cur+=1
@@ -46,8 +46,8 @@ module.exports = {
         })
     },
     decrypt(req,res){
-        let key = req.body.key.replace(/[^a-zA-Z]/g, '');
-        let text = req.text.replace(/[^a-zA-Z]/g, '');
+        let key = req.body.key.replace(/[^a-zA-Z]/g, '').toLowerCase();
+        let text = req.text.replace(/[^a-zA-Z]/g, '').toLowerCase();
 
         if(key.length != 3){
             return res.status(400).send({
