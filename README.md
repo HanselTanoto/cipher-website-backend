@@ -8,6 +8,6 @@
 npm
 
 ## How To Run
-1. Jalankan ```npm i``` untuk menginstall keseluruhan node dependency
+1. Jalankan ```npm i``` untuk menginstall keseluruhan node module dependency
 2. Jalankan ```npm start```
 3. Website dapat diakses pada http://localhost:8081/
