@@ -7,7 +7,14 @@ const app = express()
 app.use(morgan('combined'))
 app.use(bodyParser.json())
 app.use(cors())
+const port = 8081
 
 require('./routes')(app)
 
-app.listen(8081)
+app.get('/', (_req, res) => {
+    res.send("Cryptocalc Backend Service")
+});
+
+app.listen(port, () => {
+    console.log(`Cryptocalc backend listening on port ${port}`)
+});
