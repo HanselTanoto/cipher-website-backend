@@ -1,0 +1,19 @@
+steps:
+  # Build and push Docker image
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args:
+      - 'builds'
+      - 'submit'
+      - '--region=us-central1'
+      - '--tag=us-central1-docker.pkg.dev/argon-fire-409410/docker-repo/cryptocalc-api:v1'
+  # Deploy to cloud run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'cryptocalc-api'
+      - '--image=us-central1-docker.pkg.dev/argon-fire-409410/docker-repo/cryptocalc-api:v1'
+      - '--region=asia-southeast2'
+      - '--allow-unauthenticated'
